@@ -49,6 +49,8 @@ The expected response is from the service THREE
 
 ### Tracing in action
 
+You can visit http://localhost:16686/ to view the jaeger UI
+
 ![Request Trace](span.png "Request Trace")
 
 You can see the request traveling through different services and the duration it took through out the request, and that what we expect to know from distributed tracing.
