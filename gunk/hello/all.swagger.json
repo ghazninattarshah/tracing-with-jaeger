@@ -1,0 +1,130 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Hello Service API",
+    "description": "Simple hello service for demonstrate distributed tracing that shall pass hello message to multiple backend services based on the service identifier",
+    "version": "1.0.0"
+  },
+  "tags": [
+    {
+      "name": "HelloService"
+    }
+  ],
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/sayhello": {
+      "post": {
+        "summary": "Send a hello to a service based on service identifier",
+        "description": "Initiates a say hello request",
+        "operationId": "HelloService_SayHello",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiHelloResponse"
+            }
+          },
+          "404": {
+            "description": "Returned when the resource is not found.",
+            "schema": {}
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/helloHelloRequest"
+            }
+          }
+        ],
+        "tags": [
+          "HelloService",
+          "external"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "helloHelloRequest": {
+      "type": "object",
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Msg is a message from a client."
+        },
+        "service_id": {
+          "$ref": "#/definitions/helloServiceID",
+          "title": "ServiceID is the service that the hello will be sent to"
+        }
+      },
+      "description": "HelloRequest contains an hello request message."
+    },
+    "helloHelloResponse": {
+      "type": "object",
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Msg is a message from a service."
+        }
+      },
+      "description": "HelloResponse contains an hello response from specific service."
+    },
+    "helloServiceID": {
+      "type": "string",
+      "enum": [
+        "UNKNOWN_Service",
+        "ONE",
+        "TWO",
+        "THREE"
+      ],
+      "default": "UNKNOWN_Service",
+      "title": "ServiceID is identifier that the message shall be sent to"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "typeUrl": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

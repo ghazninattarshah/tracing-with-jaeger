@@ -1,0 +1,82 @@
+version: '3.7'
+services:
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "6831:6831/udp"
+      - "16686:16686"
+    networks:
+      - tracing-with-jaeger
+  one:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports: 
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - JAEGER_AGENT_HOST=jaeger
+      - JAEGER_AGENT_PORT=6831
+      - JAEGER_SERVICE_NAME=ONE
+      - JAEGER_SAMPLER_TYPE=const
+      - JAEGER_SAMPLER_PARAM=1
+      - JAEGER_RPC_METRICS=true
+      - SERVICE_NAME=ONE
+      - HTTP_PORT=9000
+      - GRPC_PORT=9001
+      - NEXT_SERVICE_HOST=two
+      - NEXT_SERVICE_PORT=10001
+    networks:
+     - tracing-with-jaeger
+    depends_on:
+      - jaeger
+      - two
+
+  two:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports: 
+      - "10000:10000"
+      - "10001:10001"
+    environment:
+      - JAEGER_AGENT_HOST=jaeger
+      - JAEGER_AGENT_PORT=6831
+      - JAEGER_SAMPLER_TYPE=const
+      - JAEGER_SAMPLER_PARAM=1
+      - JAEGER_SERVICE_NAME=TWO
+      - JAEGER_RPC_METRICS=true
+      - SERVICE_NAME=TWO
+      - HTTP_PORT=10000
+      - GRPC_PORT=10001
+      - NEXT_SERVICE_HOST=three
+      - NEXT_SERVICE_PORT=11001
+    networks:
+     - tracing-with-jaeger
+    depends_on:
+      - jaeger
+      - three
+
+  three:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports: 
+      - "11000:11000"
+      - "11001:11001"
+    environment:
+      - JAEGER_AGENT_HOST=jaeger
+      - JAEGER_AGENT_PORT=6831
+      - JAEGER_SAMPLER_TYPE=const
+      - JAEGER_SAMPLER_PARAM=1
+      - JAEGER_SERVICE_NAME=THREE
+      - JAEGER_RPC_METRICS=true
+      - SERVICE_NAME=THREE
+      - HTTP_PORT=11000
+      - GRPC_PORT=11001
+    networks:
+     - tracing-with-jaeger
+    depends_on:
+      - jaeger
+networks:
+  tracing-with-jaeger:

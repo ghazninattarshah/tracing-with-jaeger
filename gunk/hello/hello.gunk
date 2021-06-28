@@ -1,0 +1,72 @@
+// +gunk openapiv2.Swagger{
+//         Swagger: "2.0",
+//         Info: openapiv2.Info{
+//                 Title:       "Hello Service API",
+//                 Description: "Simple hello service for demonstrate distributed tracing that shall pass hello message to multiple backend services based on the service identifier",
+//                 Version:     "1.0.0",
+//         },
+//         Schemes: []openapiv2.Scheme{
+//                 openapiv2.HTTPS,
+//         },
+// }
+package hello
+
+import (
+	"github.com/gunk/opt/http"
+	"github.com/gunk/opt/openapiv2"
+)
+
+// ServiceID is identifier that the message shall be sent to
+type ServiceID int
+
+const (
+	UNKNOWN_Service ServiceID = iota
+	ONE
+	TWO
+	THREE
+)
+
+// HelloRequest contains an hello request message.
+type HelloRequest struct {
+	// Msg is a message from a client.
+	Msg string `pb:"1" json:"msg"`
+
+	// ServiceID is the service that the hello will be sent to
+	ServiceID ServiceID `pb:"2" json:"service_id"`
+}
+
+// HelloResponse contains an hello response from specific service.
+type HelloResponse struct {
+	// Msg is a message from a service.
+	Msg string `pb:"1" json:"msg"`
+}
+
+// Hello
+type HelloService interface {
+	// SayHello returns the passed message from respective service
+	//
+	// +gunk http.Match{
+	//         Method: "POST",
+	//         Path:   "/sayhello",
+	//         Body:   "*",
+	// }
+	// +gunk openapiv2.Operation{
+	//         Tags:        []string{"HelloService", "external"},
+	//         Description: "Initiates a say hello request",
+	//         Summary:     "Send a hello to a service based on service identifier",
+	//         Responses: map[string]openapiv2.Response{
+	//                 "200": openapiv2.Response{
+	//                         Description: "A successful response.",
+	//                         Schema: openapiv2.Schema{
+	//                                 JSONSchema: openapiv2.JSONSchema{
+	//                                         Ref: "#/definitions/apiHelloResponse",
+	//                                 },
+	//                         },
+	//                 },
+	//                 "404": openapiv2.Response{
+	//                         Description: "Returned when the resource is not found.",
+	//                 },
+	//         },
+	// }
+	SayHello(HelloRequest) HelloResponse
+}
